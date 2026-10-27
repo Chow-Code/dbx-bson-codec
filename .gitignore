@@ -1,0 +1,5 @@
+/bin/
+/dist/
+/work/
+/config.json
+*.log

@@ -1,0 +1,10 @@
+import {readFile,writeFile} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
+const manifest=JSON.parse(await readFile(new URL('../manifest.json',import.meta.url),'utf8'));
+const name=`${manifest.id}-${manifest.version}-windows-x64.dbxp`;
+const data=await readFile(new URL('../dist/'+name,import.meta.url));
+const artifact={target:'windows-x64',url:`https://github.com/Chow-Code/dbx-bson-codec/releases/download/v${manifest.version}/${name}`,sha256:createHash('sha256').update(data).digest('hex'),size:data.length};
+const plugin={id:manifest.id,name:manifest.name,description:manifest.description,publisher:manifest.publisher,version:manifest.version,permissions:manifest.permissions};
+await writeFile(new URL('../dist/release-candidates.json',import.meta.url),JSON.stringify({plugin,artifacts:[artifact]},null,2)+'\n');
+await writeFile(new URL('../dist/'+name+'.artifact.json',import.meta.url),JSON.stringify(artifact,null,2)+'\n');
+console.log(JSON.stringify(artifact));

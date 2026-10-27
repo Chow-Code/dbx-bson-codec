@@ -1,0 +1,10 @@
+{
+  "name": "Redis BSON Codec",
+  "description": "Decode Redis BSON values into type-preserving Extended JSON, with an optional custom external-program codec.",
+  "publisher": "chow-code",
+  "tags": ["redis", "bson", "codec", "developer-tools"],
+  "source": "https://github.com/Chow-Code/dbx-bson-codec",
+  "homepage": "https://github.com/Chow-Code/dbx-bson-codec",
+  "license": "Apache-2.0",
+  "localizations": {"zh-CN": {"name": "Redis BSON 编解码", "description": "将 Redis BSON 二进制解码为保留类型的 Extended JSON，并支持自定义外部程序。"}}
+}

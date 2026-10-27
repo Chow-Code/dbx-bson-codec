@@ -1,0 +1,28 @@
+{
+  "$schema": "https://raw.githubusercontent.com/t8y2/dbx/v0.6.57/plugins/manifest.schema.json",
+  "manifest_version": 1,
+  "id": "io.github.chow-code.redis-bson-codec",
+  "name": "Redis BSON Codec",
+  "version": "0.1.0",
+  "publisher": "chow-code",
+  "description": "Decode BSON Redis values to type-preserving Extended JSON. Includes a bundled BSON converter and an optional custom external-program codec.",
+  "icon": "assets/icon.svg",
+  "engines": { "host_api": "1" },
+  "permissions": [],
+  "entrypoints": {
+    "backend": { "protocol_versions": [1], "transport": "stdio-jsonl", "executable": "bin/windows-x64/backend.exe" },
+    "ui": { "root": "ui", "entry": "ui/index.html" }
+  },
+  "capabilities": [
+    { "id": "bson", "label": "BSON (Canonical Extended JSON)", "kind": "redis-value-codec-v1" },
+    { "id": "external-program", "label": "Custom external program", "kind": "redis-value-codec-v1" }
+  ],
+  "contributions": [{ "type": "workbench", "id": "bson-codec.workbench", "label": "BSON Codec Workbench", "icon": "assets/icon.svg" }],
+  "localizations": {
+    "zh-CN": {
+      "name": "Redis BSON 编解码",
+      "description": "将 Redis BSON 二进制值解码为保留类型的 Extended JSON，内置 BSON 转换器并支持自定义外部程序。",
+      "contributions": { "bson-codec.workbench": { "label": "BSON 编解码工作台" } }
+    }
+  }
+}

@@ -1,0 +1,37 @@
+name: Validate BSON codec
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.5'
+          cache: false
+      - run: go test ./...
+      - run: go vet ./...
+      - uses: actions/setup-node@v4
+        if: runner.os == 'Windows'
+        with:
+          node-version: '22'
+      - name: Build Windows development candidate
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./build.ps1 -SkipTests
+      - name: Verify candidate and run its backend
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          ./scripts/verify-package.ps1 -Package (Get-ChildItem dist/*.dbxp).FullName -ExtractDirectory work/verified
+          node scripts/smoke.mjs "$PWD/work/verified/bin/windows-x64/backend.exe"
+      - uses: actions/upload-artifact@v4
+        if: runner.os == 'Windows'
+        with:
+          name: unsigned-windows-x64-candidate
+          path: dist/*

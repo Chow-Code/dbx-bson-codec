@@ -1,0 +1,6 @@
+The DBX Go plugin SDK in internal/dbxpluginsdk/sdk.go is copied from
+https://github.com/t8y2/dbx, tag v0.6.57, plugins/sdk/go/dbx-plugin-sdk/sdk.go.
+It is licensed under Apache-2.0; see internal/dbxpluginsdk/LICENSE.
+
+BSON conversion uses the MongoDB Go Driver v2.7.0 (MongoDB, Inc.), Apache-2.0.
+Its license and third-party notices are included in THIRD_PARTY_LICENSES.
