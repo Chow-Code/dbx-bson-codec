@@ -1,12 +1,13 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { once } from "node:events";
-import { mkdir, mkdtemp } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import readline from "node:readline";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
+const manifest = JSON.parse(await readFile(path.join(root, "manifest.json"), "utf8"));
 await mkdir(path.join(root, "work"), { recursive: true });
 const dataDir = await mkdtemp(path.join(root, "work", "smoke-"));
 const executable = process.argv[2] || path.join(root, "bin", "windows-x64", "backend.exe");
@@ -34,7 +35,7 @@ function call(method, params) {
   });
 }
 try {
-  const initialized = await call("plugin/initialize", { host: { dbxVersion: "0.6.51", hostApiVersion: "1.0.0", protocolVersions: [1] }, plugin: { id: "io.github.chow-code.redis-bson-codec", version: "0.1.0" }, permissions: [] });
+  const initialized = await call("plugin/initialize", { host: { dbxVersion: "0.6.55", hostApiVersion: "1.0.0", protocolVersions: [1] }, plugin: { id: manifest.id, version: manifest.version }, permissions: manifest.permissions });
   assert.equal(initialized.protocolVersion, 1);
   // Independent wire fixture: BSON specification example {hello: "world"}.
   const bsonRaw = Buffer.from("160000000268656c6c6f0006000000776f726c640000", "hex");

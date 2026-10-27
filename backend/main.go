@@ -10,7 +10,7 @@ import (
 )
 
 const pluginID = "io.github.chow-code.redis-bson-codec"
-const pluginVersion = "0.1.0"
+const pluginVersion = "0.1.1"
 
 func main() {
 	if len(os.Args) == 2 && (os.Args[1] == "--bson-decode" || os.Args[1] == "--bson-encode") {

@@ -3,10 +3,19 @@ on:
   release:
     types: [published]
 permissions:
-  contents: write
+  contents: read
 jobs:
-  release:
-    runs-on: windows-latest
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { runner: windows-latest, target: windows-x64 }
+          - { runner: ubuntu-24.04, target: linux-x64 }
+          - { runner: ubuntu-24.04-arm, target: linux-arm64 }
+          - { runner: macos-15-intel, target: darwin-x64 }
+          - { runner: macos-15, target: darwin-arm64 }
+    runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -17,17 +26,34 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Build and verify candidate
-        shell: pwsh
-        run: |
-          ./build.ps1
-          go vet ./...
-          ./scripts/verify-package.ps1 -Package (Get-ChildItem dist/*.dbxp).FullName -ExtractDirectory work/verified
-          node scripts/smoke.mjs "$PWD/work/verified/bin/windows-x64/backend.exe"
-          node scripts/release-metadata.mjs
-      - name: Upload review candidates
-        shell: pwsh
+      - name: Native tests, package verification and executable smoke
+        run: node scripts/ci.mjs ${{ matrix.target }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.target }}
+          path: dist/*/*
+          if-no-files-found: error
+  publish:
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: release-*
+          path: release-assets
+          merge-multiple: true
+      - name: Verify all five candidate hashes and shared manifest identity
+        run: node scripts/release-metadata.mjs release-assets --all
+      - name: Publish new assets without overwriting an existing release asset
         env:
           GH_TOKEN: ${{ github.token }}
-        run: |
-          gh release upload '${{ github.event.release.tag_name }}' (Get-ChildItem dist/* | ForEach-Object FullName) --repo '${{ github.repository }}'
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: gh release upload "$RELEASE_TAG" release-assets/* --repo "$GITHUB_REPOSITORY"

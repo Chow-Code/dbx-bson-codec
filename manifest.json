@@ -3,11 +3,11 @@
   "manifest_version": 1,
   "id": "io.github.chow-code.redis-bson-codec",
   "name": "Redis BSON Codec",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "chow-code",
   "description": "Decode BSON Redis values to type-preserving Extended JSON. Includes a bundled BSON converter and an optional custom external-program codec.",
   "icon": "assets/icon.svg",
-  "engines": { "host_api": "1" },
+  "engines": { "dbx": ">=0.6.55", "host_api": "1" },
   "permissions": [],
   "entrypoints": {
     "backend": { "protocol_versions": [1], "transport": "stdio-jsonl", "executable": "bin/windows-x64/backend.exe" },

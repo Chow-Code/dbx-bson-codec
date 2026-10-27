@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict';
+import {execFileSync} from 'node:child_process';
+import {readFile,mkdtemp,mkdir} from 'node:fs/promises';
+import path from 'node:path';
+const target=process.argv[2];
+const platforms={'windows-x64':['win32','x64'],'linux-x64':['linux','x64'],'linux-arm64':['linux','arm64'],'darwin-x64':['darwin','x64'],'darwin-arm64':['darwin','arm64']};
+assert.deepEqual([process.platform,process.arch],platforms[target],'Native runner must match package target');
+const run=(program,args)=>execFileSync(program,args,{stdio:'inherit'});
+run('go',['test','./...']);run('go',['vet','./...']);
+run('go',['run','./cmd/package','-target',target]);
+const manifest=JSON.parse(await readFile('manifest.json','utf8'));
+const packagePath=path.join('dist',manifest.version,`${manifest.id}-${manifest.version}-${target}.dbxp`);
+await mkdir('work',{recursive:true});
+const temporary=await mkdtemp(path.join('work','verify-'));
+const extracted=path.join(temporary,'package');
+run('go',['run','./cmd/package','-verify',packagePath,'-extract',extracted]);
+run(process.execPath,['scripts/smoke.mjs',path.resolve(extracted,'bin',target,process.platform==='win32'?'backend.exe':'backend')]);
+console.log(`PASS: native ${target} build, verified archive, executable permissions and packaged backend integration`);
